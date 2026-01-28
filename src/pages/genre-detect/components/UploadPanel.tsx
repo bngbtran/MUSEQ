@@ -7,7 +7,7 @@ import {
   TabsContent,
 } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Upload, Mic } from "lucide-react"
+import { Upload, Mic, CheckCircle } from "lucide-react"
 
 type UploadStatus = "idle" | "uploading" | "processing" | "complete"
 
@@ -149,8 +149,9 @@ export default function UploadPanel() {
           </div>
 
           {fileName && (
-            <p className="text-center text-sm text-lime-400">
-              ✓ Uploaded: {fileName}
+            <p className="flex items-center justify-center gap-1 text-sm text-lime-400">
+              <CheckCircle className="h-4 w-4" />
+              Uploaded: {fileName}
             </p>
           )}
 

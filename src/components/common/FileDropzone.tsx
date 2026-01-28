@@ -112,8 +112,9 @@ export default function FileDropzone({
         )}
 
         {hasRecording && status === "idle" && (
-          <p className="text-sm font-medium text-green-600">
-            ✓ Recording ready
+          <p className="flex items-center justify-center gap-1 text-sm font-medium text-green-600">
+            <CheckCircle className="h-4 w-4" />
+            Recording ready
           </p>
         )}
 
