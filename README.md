@@ -1,4 +1,4 @@
-# MUSEQ - UI MVP Project Outline For DSP501 Final Project  
+# MUSEQ - UI MVP For DSP501 Final Project  
 **Digital Audio Equalizer & Music Genre Classification System**
 
 MUSEQ is a web-based frontend demo for a Digital Signal Processing (DSP) project that combines an **audio equalizer** with **music genre classification using Machine Learning**.  
