@@ -1,4 +1,3 @@
-````markdown
 # MUSEQ - UI MVP Project Outline For DSP501 Final Project  
 **Digital Audio Equalizer & Music Genre Classification System**
 
@@ -111,4 +110,3 @@ The frontend demonstrates:
 * Visualization of audio signals
 * Integration potential with Machine Learning
 * System-level design and user experience
-```
