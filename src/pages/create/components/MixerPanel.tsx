@@ -16,17 +16,6 @@ type MixerPanelProps = {
 
 /* ================= CONST ================= */
 
-const EQ_BANDS = [
-  ["SUB", "60Hz"],
-  ["BASS", "120Hz"],
-  ["LOW MID", "250Hz"],
-  ["MID", "1kHz"],
-  ["HIGH MID", "4kHz"],
-  ["TREBLE", "8kHz"],
-  ["AIR", "16kHz"],
-  ["VOLUME", "dB"],
-]
-
 const BAR_COUNT = 178
 
 /* ================= MAIN ================= */
@@ -86,8 +75,8 @@ export default function MixerPanel({
     <MixerEditor
       key={track.id}
       track={track}
-      onSave={(next) => {
-        onSave(next)
+      onSave={(nextTrack) => {
+        onSave(nextTrack)
         onClose()
       }}
     />
@@ -103,6 +92,7 @@ function MixerEditor({
   track: Track
   onSave: (next: Track) => void
 }) {
+
   const [eqValues, setEqValues] = useState<number[]>(
     track.mix.eq ?? Array(8).fill(0)
   )
@@ -110,15 +100,35 @@ function MixerEditor({
   const original = useBaseWaveform()
   const processed = useProcessedWaveform(eqValues)
 
+  const handleSave = () => {
+    const nextTrack: Track = {
+      ...track,
+      mix: {
+        ...track.mix,
+        eq: eqValues,
+      },
+    }
+
+    onSave(nextTrack)
+  }
+
   return (
     <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
       <h2 className="mb-6 text-center text-xl font-bold text-lime-400">
-        EQ MIXING — {track.name}
+        EQ MIXING
       </h2>
 
-      {/* EQ */}
       <div className="grid grid-cols-8 gap-4">
-        {EQ_BANDS.map(([label, freq], i) => (
+        {[
+          ["SUB", "60Hz"],
+          ["BASS", "120Hz"],
+          ["LOW MID", "250Hz"],
+          ["MID", "1kHz"],
+          ["HIGH MID", "4kHz"],
+          ["TREBLE", "8kHz"],
+          ["AIR", "16kHz"],
+          ["VOLUME", "dB"],
+        ].map(([label, freq], i) => (
           <EqBand
             key={label}
             label={label}
@@ -135,32 +145,26 @@ function MixerEditor({
         ))}
       </div>
 
-      {/* WAVEFORM */}
-      <WaveformCompare original={original} processed={processed} />
+      <WaveformCompare
+        original={original}
+        processed={processed}
+      />
 
-      {/* SAVE */}
+      {/* ===== EXPORT BUTTON ===== */}
       <div className="mt-8 flex justify-center">
         <Button
-          onClick={() =>
-            onSave({
-              ...track,
-              mix: {
-                ...track.mix,
-                eq: eqValues,
-              },
-            })
-          }
+          onClick={handleSave}
           className="
-            bg-lime-400
-            text-blue-950
-            font-bold
-            px-8
-            py-2
-            hover:bg-lime-300
-            shadow-[0_4px_20px_rgba(182,255,82,0.45)]
-          "
+    bg-lime-400
+    text-blue-950
+    font-bold
+    px-8
+    py-2
+    hover:bg-lime-300
+    shadow-[0_4px_20px_rgba(182,255,82,0.45)]
+  "
         >
-          SAVE MIX TO TRACK
+          EXPORT AUDIO
         </Button>
       </div>
     </section>
@@ -182,45 +186,57 @@ function EqBand({
 }) {
   return (
     <div className="flex flex-col items-center gap-3">
-      {/* VALUE */}
+      {/* dB VALUE */}
       <span
         className={`text-sm font-semibold ${value > 0
-            ? "text-lime-400"
-            : value < 0
-              ? "text-red-400"
-              : "text-white/60"
+          ? "text-lime-400"
+          : value < 0
+            ? "text-red-400"
+            : "text-white/60"
           }`}
       >
         {value > 0 && "+"}
         {value} dB
       </span>
 
-      {/* SLIDER */}
+      {/* SLIDER WRAPPER */}
       <div
         className="relative flex h-40 w-10 items-center justify-center cursor-pointer"
         onDoubleClick={() => onChange(0)}
         title="Double click to reset (0 dB)"
       >
-        {/* TRACK */}
-        <div className="
-          pointer-events-none
-          absolute left-1/2 top-0
-          h-full w-[4px]
-          -translate-x-1/2
-          rounded-full
-          bg-white/20
-        " />
+        {/* TRACK BACKGROUND */}
+        <div
+          className="
+            pointer-events-none
+            absolute
+            left-1/2
+            top-0
+            h-full
+            w-[4px]
+            -translate-x-1/2
+            rounded-full
+            bg-white/20
+          "
+        />
 
-        {/* 0 dB LINE */}
-        <div className="
-          pointer-events-none
-          absolute left-1/2 top-1/2
-          h-[2px] w-6
-          -translate-x-1/2 -translate-y-1/2
-          bg-lime-400/70
-          shadow-[0_0_6px_rgba(163,230,53,0.9)]
-        " />
+        {/* 0 dB CENTER LINE */}
+        <div
+          className="
+            pointer-events-none
+            absolute
+            left-1/2
+            top-1/2
+            h-[2px]
+            w-6
+            -translate-x-1/2
+            -translate-y-1/2
+            bg-lime-400/70
+            shadow-[0_0_6px_rgba(163,230,53,0.9)]
+          "
+        />
 
+        {/* RADIX SLIDER */}
         <Slider
           orientation="vertical"
           min={-12}
@@ -238,7 +254,6 @@ function EqBand({
 
             [&_[role=range]]:bg-lime-400
 
-            [&_[role=slider]]:z-10
             [&_[role=slider]]:bg-lime-400
             [&_[role=slider]]:border-none
             [&_[role=slider]]:cursor-pointer

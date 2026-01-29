@@ -75,7 +75,7 @@ export default function ChannelStrip({
           e.stopPropagation()
           onRemove()
         }}
-        className="ml-2 text-white/40 hover:text-red-400"
+        className="ml-2 mr-4 text-white/40 hover:text-red-400"
       >
         <Trash2 size={16} />
       </button>
