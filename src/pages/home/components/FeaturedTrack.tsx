@@ -43,7 +43,7 @@ export default function FeaturedTrack() {
     62, 54, 46, 36, 26, 22, 30, 42, 50, 44, 34, 10,
   ]
 
-  const BAR_COUNT = 170 // +200 bar
+  const BAR_COUNT = 170
 
   const [waveform] = useState(() => {
     return Array.from({ length: BAR_COUNT }, (_, i) => {
@@ -76,9 +76,7 @@ export default function FeaturedTrack() {
 
   return (
     <section className="mt-24">
-      {/* ===== FEATURED SLIDER ===== */}
       <div className="grid grid-cols-12 items-center gap-10">
-        {/* LEFT */}
         <div className="col-span-4">
           <h3 className="text-3xl font-bold text-lime-400">
             Some New Releases
@@ -93,7 +91,6 @@ export default function FeaturedTrack() {
           </button>
         </div>
 
-        {/* RIGHT */}
         <div className="relative col-span-8 overflow-hidden">
           <div
             className="flex gap-2 transition-transform duration-700"
@@ -119,7 +116,6 @@ export default function FeaturedTrack() {
 
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-950/70 via-blue-950/30 to-transparent" />
 
-                  {/* INFO */}
                   <div
                     className={`
                       absolute bottom-6 left-6 rounded-xl bg-[#0b2545] px-5 py-4
@@ -155,7 +151,6 @@ export default function FeaturedTrack() {
             })}
           </div>
 
-          {/* ARROW */}
           <Button
             onClick={nextSlide}
             size="icon"
@@ -168,7 +163,6 @@ export default function FeaturedTrack() {
             <ChevronRightIcon className="h-6 w-6" />
           </Button>
 
-          {/* DOTS */}
           <div className="mt-6 flex gap-3">
             {tracks.map((_, i) => (
               <span
@@ -181,22 +175,18 @@ export default function FeaturedTrack() {
         </div>
       </div>
 
-      {/* MOST PLAYED */}
       <div className="mt-12 rounded-3xl bg-blue-950/30 p-6">
         <h3 className="mb-6 text-center text-3xl font-bold text-lime-400">
           Most Played
         </h3>
 
         <div className="flex items-center gap-6">
-          {/* COVER */}
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJSnTPWcXXA1sGwqAtJC9IUK8NdQQROOMJ-Q&s"
             className="h-28 w-28 rounded-xl object-cover"
           />
 
-          {/* CONTENT */}
           <div className="flex-1">
-            {/* TITLE */}
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <PlayButton
@@ -222,7 +212,6 @@ export default function FeaturedTrack() {
               <span className="text-sm text-white/70">03:30</span>
             </div>
 
-            {/* WAVEFORM */}
             <div className="flex h-16 items-center gap-[3px]">
               {waveform.map((h, i) => {
                 const playedBars = duration

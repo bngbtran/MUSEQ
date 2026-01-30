@@ -14,7 +14,6 @@ export type Track = {
   waveform: number[]
   eq: number[]
   muted: boolean
-  // Thêm 2 dòng này để khớp với các file ChannelStrip và MixerPanel
   solo?: boolean
   mix?: {
     eq?: number[]
@@ -35,15 +34,11 @@ export default function TrackList() {
   >({})
   const audioMapRef = useRef<Map<string, HTMLAudioElement>>(new Map())
   const fileInputRef = useRef<HTMLInputElement | null>(null)
-
-  /* ========== RECORDING ========== */
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunks = useRef<Blob[]>([])
   const [isRecording, setIsRecording] = useState(false)
-
   const selectedTrack = tracks.find(t => t.id === selectedTrackId)
 
-  /* ========== UPLOAD / ADD TRACK ========== */
   function handleUpload(file: File) {
     const url = URL.createObjectURL(file)
 
@@ -54,15 +49,14 @@ export default function TrackList() {
       waveform: generateWaveform(),
       eq: Array(8).fill(0),
       muted: false,
-      solo: false, // Thêm giá trị mặc định
-      mix: { eq: Array(8).fill(0), volume: 1 } // Thêm giá trị mặc định
+      solo: false,
+      mix: { eq: Array(8).fill(0), volume: 1 }
     }
 
     setTracks(prev => [...prev, newTrack])
     setSelectedTrackId(newTrack.id)
   }
 
-  /* ========== RECORD ========== */
   async function startRecording() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     const recorder = new MediaRecorder(stream)
@@ -145,7 +139,6 @@ export default function TrackList() {
     }
   }
 
-  /* ========== AUDIO ========== */
   function togglePlay(track: Track) {
     const audio = getAudio(track)
 
@@ -154,18 +147,12 @@ export default function TrackList() {
       setPlayingTrackId(track.id)
     } else {
       audio.pause()
-      // ❌ KHÔNG reset playingTrackId
-      // setPlayingTrackId(null)
     }
   }
 
   function playAll() {
     tracks.forEach(track => {
       const audio = getAudio(track)
-
-      // ❌ bỏ dòng này
-      // audio.currentTime = 0
-
       audio.play()
     })
 
@@ -176,8 +163,6 @@ export default function TrackList() {
   function stopAll() {
     audioMapRef.current.forEach(audio => {
       audio.pause()
-      // ❌ bỏ reset
-      // audio.currentTime = 0
     })
 
     setIsPlayAll(false)
@@ -197,7 +182,6 @@ export default function TrackList() {
   }
 
   function deleteTrack(track: Track) {
-    // 1. Stop & remove audio
     const audio = audioMapRef.current.get(track.id)
     if (audio) {
       audio.pause()
@@ -205,17 +189,14 @@ export default function TrackList() {
       audioMapRef.current.delete(track.id)
     }
 
-    // 2. Remove from tracks
     setTracks(ts => ts.filter(t => t.id !== track.id))
 
-    // 3. Remove progress
     setTrackProgress(p => {
       const next = { ...p }
       delete next[track.id]
       return next
     })
 
-    // 4. Reset states nếu cần
     if (playingTrackId === track.id) {
       setPlayingTrackId(null)
     }
@@ -226,7 +207,6 @@ export default function TrackList() {
     }
   }
 
-  /* ========== EXPORT ========== */
   const exportTrack = (track: Track) => {
     alert("Export track: " + track.name)
   }
@@ -237,7 +217,6 @@ export default function TrackList() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
       <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
         <h2 className="mb-4 text-center text-xl font-bold text-lime-400">
           TRACK LIST
@@ -281,7 +260,6 @@ export default function TrackList() {
     shadow-[0_4px_20px_rgba(182,255,82,0.35)]
   "
           >
-            {/* ICON – ép màu */}
             <span className="[&_svg]:text-blue-900 pointer-events-none">
               <PlayButton
                 isPlaying={isPlayAll}
@@ -289,7 +267,6 @@ export default function TrackList() {
               />
             </span>
 
-            {/* TEXT */}
             <span>
               {isPlayAll ? "STOP ALL" : "PLAY ALL"}
             </span>
@@ -309,7 +286,6 @@ export default function TrackList() {
         </div>
       </section>
 
-      {/* TRACK LIST */}
       {tracks.map(track => {
         const progress = trackProgress[track.id]
 
@@ -324,7 +300,6 @@ export default function TrackList() {
           >
             <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {/* PLAY + MUTE */}
                 <div
                   className="flex items-center gap-1"
                   onClick={e => e.stopPropagation()}
@@ -417,7 +392,6 @@ export default function TrackList() {
         )
       })}
 
-      {/* MIXER */}
       {showMixing && selectedTrack && (
         <MixingPanel
           track={selectedTrack}
@@ -429,7 +403,6 @@ export default function TrackList() {
         />
       )}
 
-      {/* EXPORT ALL – ALWAYS VISIBLE */}
       {tracks.length > 0 && (
         <div className="flex justify-center pt-4">
           <Button
@@ -462,8 +435,6 @@ export default function TrackList() {
     </div>
   )
 }
-
-/* ================= MIXER ================= */
 
 function MixingPanel({
   track,
@@ -515,7 +486,6 @@ function MixingPanel({
   )
 }
 
-/* ================= HELPERS ================= */
 function WaveformStatic({
   bars,
   color,
@@ -566,7 +536,6 @@ function WaveformBars({
     const x = e.clientX - rect.left
     const percent = Math.min(Math.max(x / rect.width, 0), 1)
 
-    // 👉 PLAY ALL → tua tất cả track
     if (isPlayAll) {
       audioMapRef.current?.forEach(audio => {
         if (!isNaN(audio.duration)) {
@@ -576,7 +545,6 @@ function WaveformBars({
       return
     }
 
-    // 👉 PLAY 1 TRACK → tua riêng track đó
     const audio = audioMapRef.current?.get(trackId)
     if (!audio) return
 
@@ -608,35 +576,6 @@ function WaveformBars({
   )
 }
 
-// function EqBand({
-//   label,
-//   freq,
-//   value,
-//   onChange,
-// }: {
-//   label: string
-//   freq: string
-//   value: number
-//   onChange: (v: number) => void
-// }) {
-//   return (
-//     <div className="flex flex-col items-center gap-3">
-//       <span className="text-sm text-white">{value} dB</span>
-//       <Slider
-//         orientation="vertical"
-//         min={-12}
-//         max={12}
-//         step={1}
-//         value={[value]}
-//         onValueChange={v => onChange(v[0])}
-//         className="h-40"
-//       />
-//       <div className="text-xs text-white">{label}</div>
-//       <div className="text-[10px] text-white/50">{freq}</div>
-//     </div>
-//   )
-// }
-
 function EqBand({
   label,
   freq,
@@ -650,7 +589,6 @@ function EqBand({
 }) {
   return (
     <div className="flex flex-col items-center gap-3">
-      {/* dB VALUE */}
       <span
         className={`text-sm font-semibold ${value > 0
           ? "text-lime-400"
@@ -663,13 +601,11 @@ function EqBand({
         {value} dB
       </span>
 
-      {/* SLIDER WRAPPER */}
       <div
         className="relative flex h-40 w-10 items-center justify-center cursor-pointer"
         onDoubleClick={() => onChange(0)}
         title="Double click to reset (0 dB)"
       >
-        {/* TRACK BACKGROUND */}
         <div
           className="
             pointer-events-none
@@ -684,7 +620,6 @@ function EqBand({
           "
         />
 
-        {/* 0 dB CENTER LINE */}
         <div
           className="
             pointer-events-none
@@ -700,7 +635,6 @@ function EqBand({
           "
         />
 
-        {/* RADIX SLIDER */}
         <Slider
           orientation="vertical"
           min={-12}
@@ -711,13 +645,10 @@ function EqBand({
           className="
             relative
             h-40 w-2 cursor-pointer
-
             [&_[role=track]]:w-2
             [&_[role=track]]:mx-auto
             [&_[role=track]]:bg-white/20
-
             [&_[role=range]]:bg-lime-400
-
             [&_[role=slider]]:bg-lime-400
             [&_[role=slider]]:border-none
             [&_[role=slider]]:cursor-pointer
@@ -727,7 +658,6 @@ function EqBand({
         />
       </div>
 
-      {/* LABEL */}
       <div className="text-center">
         <p className="text-xs font-semibold text-white">{label}</p>
         <p className="text-[10px] text-white/50">{freq}</p>

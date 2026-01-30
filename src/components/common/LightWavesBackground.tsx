@@ -6,11 +6,8 @@ import { cn } from "@/lib/utils"
 export interface LightWavesBackgroundProps {
     className?: string
     children?: React.ReactNode
-    /** Array of colors for the waves */
     colors?: string[]
-    /** Animation speed multiplier */
     speed?: number
-    /** Intensity of the effect (0-1) */
     intensity?: number
 }
 
@@ -45,7 +42,6 @@ export function LightWavesBackground({
     const containerRef = useRef<HTMLDivElement>(null)
     const wavesRef = useRef<Wave[]>([])
     const animationRef = useRef<number | null>(null)
-    // const startTimeRef = useRef<number | null>(null)
     const timeRef = useRef(0)
 
     const initWaves = useCallback(
@@ -64,7 +60,6 @@ export function LightWavesBackground({
                     opacity: 0.15 + Math.random() * 0.1,
                 })
             }
-
             wavesRef.current = waves
         },
         [colors],
@@ -95,10 +90,9 @@ export function LightWavesBackground({
         ro.observe(container)
 
         const draw = () => {
-            timeRef.current += 0.016 * speed // ~60fps
+            timeRef.current += 0.016 * speed
             const time = timeRef.current
 
-            // Background gradient
             const bg = ctx.createLinearGradient(0, 0, 0, height)
             bg.addColorStop(0, "#030712")
             bg.addColorStop(0.5, "#0a0f1a")
@@ -108,7 +102,6 @@ export function LightWavesBackground({
 
             ctx.globalCompositeOperation = "lighter"
 
-            // Ambient glow
             const glowSpots = [
                 { x: width * 0.2, y: height * 0.3, r: Math.min(width, height) * 0.4, c: colors[0] },
                 { x: width * 0.8, y: height * 0.6, r: Math.min(width, height) * 0.35, c: colors[1] },
@@ -124,7 +117,6 @@ export function LightWavesBackground({
                 ctx.fillRect(0, 0, width, height)
             }
 
-            // Waves
             for (const w of wavesRef.current) {
                 const rgb = hexToRgb(w.color)
                 ctx.beginPath()
@@ -169,7 +161,6 @@ export function LightWavesBackground({
         <div ref={containerRef} className={cn("fixed inset-0 -z-10", className)}>
             <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 
-            {/* Noise */}
             <div
                 className="pointer-events-none absolute inset-0 opacity-[0.015]"
                 style={{
@@ -183,5 +174,4 @@ export function LightWavesBackground({
     )
 }
 
-/** ✅ DEFAULT EXPORT – QUAN TRỌNG */
 export default LightWavesBackground

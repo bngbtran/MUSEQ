@@ -6,15 +6,12 @@ type AudioZoneMode = "upload" | "record"
 
 type AudioZoneProps = {
   mode: AudioZoneMode
-
   accept?: Record<string, string[]>
   maxFiles?: number
   onDrop?: (files: File[]) => void
   fileName?: string | null
-
   isRecording?: boolean
   hasRecording?: boolean
-
   status: UploadStatus
   progress?: number
 }
@@ -37,7 +34,6 @@ export default function FileDropzone({
     disabled: mode !== "upload" || status !== "idle",
   })
 
-  /* IDLE UPLOAD */
   if (mode === "upload" && status === "idle") {
     return (
       <div
@@ -60,10 +56,8 @@ export default function FileDropzone({
     )
   }
 
-  /* COMMON ZONE (UPLOAD + RECORD) */
   return (
     <div className="relative h-40 overflow-hidden rounded-xl border border-white/10 bg-white text-blue-950">
-      {/* PROGRESS / PROCESS FILL */}
       {(status === "uploading" || status === "processing") && (
         <div
           className={`
@@ -78,7 +72,7 @@ export default function FileDropzone({
         />
       )}
 
-      {/* CONTENT */}
+
       <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
         {mode === "upload" ? (
           <Upload className="mb-2 h-6 w-6" />
@@ -91,7 +85,6 @@ export default function FileDropzone({
           />
         )}
 
-        {/* TEXT STATE */}
         {mode === "upload" && (
           <p className="text-sm font-medium">{fileName}</p>
         )}

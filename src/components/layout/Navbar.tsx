@@ -17,12 +17,10 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 z-50 w-full bg-[#050A16]/95 backdrop-blur">
       <div className="relative mx-auto flex h-16 max-w-screen-2xl items-center px-6 text-white">
-        {/* LEFT */}
         <NavLink to="/" className="text-lg font-bold tracking-wide">
           MUSEQ
         </NavLink>
 
-        {/* CENTER */}
         <div className="absolute left-1/2 -translate-x-1/2">
           <NavigationMenu>
             <NavigationMenuList className="gap-10">
@@ -52,7 +50,6 @@ export default function Navbar() {
           </NavigationMenu>
         </div>
 
-        {/* RIGHT */}
         <div className="ml-auto">
           <NavLink to="/create">
             <Button

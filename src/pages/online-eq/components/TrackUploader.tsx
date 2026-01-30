@@ -15,8 +15,6 @@ type UploadStatus = "idle" | "uploading" | "processing" | "complete"
 
 const BAR_COUNT = 178
 
-/* ================= MAIN ================= */
-
 export default function TrackUploader() {
   const [fileName, setFileName] = useState<string | null>(null)
   const [status, setStatus] = useState<UploadStatus>("idle")
@@ -26,8 +24,6 @@ export default function TrackUploader() {
   const [isRecording, setIsRecording] = useState(false)
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null)
   const [showMixing, setShowMixing] = useState(false)
-
-  /* ================= ACTION ================= */
 
   const startMixing = () => {
     setStatus("uploading")
@@ -56,8 +52,6 @@ export default function TrackUploader() {
     setShowMixing(false)
   }
 
-  /* ================= RECORD ================= */
-
   const startRecord = () => {
     setIsRecording(true)
     setRecordedBlob(null)
@@ -66,16 +60,15 @@ export default function TrackUploader() {
   const stopRecord = () => {
     setIsRecording(false)
 
-    const blob = new Blob([], { type: "audio/wav" }) // mock
+    const blob = new Blob([], { type: "audio/wav" })
     setRecordedBlob(blob)
 
     const url = URL.createObjectURL(blob)
-    setAudioUrl(url) // 👈 QUAN TRỌNG
+    setAudioUrl(url)
   }
 
   return (
     <div className="space-y-6">
-      {/* ================= UPLOAD ================= */}
       <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
         <h2 className="mb-4 text-center text-xl font-bold text-lime-400">
           TRACK UPLOADER
@@ -93,7 +86,6 @@ export default function TrackUploader() {
             </TabsTrigger>
           </TabsList>
 
-          {/* ===== UPLOAD TAB ===== */}
           <TabsContent value="upload" className="mt-4 space-y-4">
             {!audioUrl ? (
               <div className="rounded-xl border border-dashed border-cyan-400/50 p-6">
@@ -139,7 +131,6 @@ export default function TrackUploader() {
             </Button>
           </TabsContent>
 
-          {/* ===== RECORD TAB ===== */}
           <TabsContent value="record" className="mt-4 space-y-4">
             {!audioUrl ? (
               <FileDropzone
@@ -162,7 +153,6 @@ export default function TrackUploader() {
                 Recording ready
               </p>
             )}
-
             <Button
               onClick={() => {
                 if (status === "complete") resetAll()
@@ -189,13 +179,10 @@ export default function TrackUploader() {
         </Tabs>
       </section>
 
-      {/* ================= MIXING ================= */}
       {showMixing && <MixingPanel />}
     </div>
   )
 }
-
-/* ================= MIXING ================= */
 
 function MixingPanel() {
   const [eqValues, setEqValues] = useState<number[]>(
@@ -259,7 +246,6 @@ function MixingPanel() {
         processed={processed}
       />
 
-      {/* ===== EXPORT BUTTON ===== */}
       <div className="mt-8 flex justify-center">
         <Button
           onClick={handleExport}
@@ -280,8 +266,6 @@ function MixingPanel() {
   )
 }
 
-/* ================= EQ BAND ================= */
-
 function EqBand({
   label,
   freq,
@@ -295,7 +279,6 @@ function EqBand({
 }) {
   return (
     <div className="flex flex-col items-center gap-3">
-      {/* dB VALUE */}
       <span
         className={`text-sm font-semibold ${value > 0
           ? "text-lime-400"
@@ -308,13 +291,11 @@ function EqBand({
         {value} dB
       </span>
 
-      {/* SLIDER WRAPPER */}
       <div
         className="relative flex h-40 w-10 items-center justify-center cursor-pointer"
         onDoubleClick={() => onChange(0)}
         title="Double click to reset (0 dB)"
       >
-        {/* TRACK BACKGROUND */}
         <div
           className="
             pointer-events-none
@@ -329,7 +310,6 @@ function EqBand({
           "
         />
 
-        {/* 0 dB CENTER LINE */}
         <div
           className="
             pointer-events-none
@@ -345,7 +325,6 @@ function EqBand({
           "
         />
 
-        {/* RADIX SLIDER */}
         <Slider
           orientation="vertical"
           min={-12}
@@ -356,13 +335,10 @@ function EqBand({
           className="
             relative
             h-40 w-2 cursor-pointer
-
             [&_[role=track]]:w-2
             [&_[role=track]]:mx-auto
             [&_[role=track]]:bg-white/20
-
             [&_[role=range]]:bg-lime-400
-
             [&_[role=slider]]:bg-lime-400
             [&_[role=slider]]:border-none
             [&_[role=slider]]:cursor-pointer
@@ -372,7 +348,6 @@ function EqBand({
         />
       </div>
 
-      {/* LABEL */}
       <div className="text-center">
         <p className="text-xs font-semibold text-white">{label}</p>
         <p className="text-[10px] text-white/50">{freq}</p>
@@ -380,8 +355,6 @@ function EqBand({
     </div>
   )
 }
-
-/* ================= WAVEFORM PLAYER ================= */
 
 function WaveformPlayer({
   audioRef,
@@ -468,8 +441,6 @@ function WaveformPlayer({
   )
 }
 
-/* ================= WAVEFORM COMPARE ================= */
-
 function WaveformCompare({
   original,
   processed,
@@ -509,8 +480,6 @@ function WaveformBox({
     </div>
   )
 }
-
-/* ================= WAVEFORM UTILS ================= */
 
 function useBaseWaveform() {
   return useMemo(

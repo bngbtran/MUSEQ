@@ -29,12 +29,9 @@ export default function UploadPanel() {
         if (prev >= 100) {
           clearInterval(interval)
           setStatus("processing")
-
-          // giả lập xử lý AI
           setTimeout(() => {
             setStatus("complete")
           }, 1500)
-
           return 100
         }
         return prev + 10
@@ -59,7 +56,6 @@ export default function UploadPanel() {
   const handleStopRecord = () => {
     setIsRecording(false)
 
-    // giả lập có file ghi âm
     const fakeBlob = new Blob([], { type: "audio/wav" })
     setRecordedBlob(fakeBlob)
   }
@@ -73,7 +69,6 @@ export default function UploadPanel() {
         if (prev >= 100) {
           clearInterval(interval)
           setStatus("processing")
-
           setTimeout(() => {
             setStatus("complete")
           }, 1500)
@@ -92,7 +87,6 @@ export default function UploadPanel() {
       </h2>
 
       <Tabs defaultValue="upload" className="w-full">
-        {/* TAB HEADER */}
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger
             value="upload"
@@ -117,7 +111,6 @@ export default function UploadPanel() {
           </TabsTrigger>
         </TabsList>
 
-        {/* TAB 1: UPLOAD */}
         <TabsContent value="upload" className="mt-4 space-y-4">
           <div className="rounded-xl border border-dashed border-cyan-400/50 p-6 text-center">
             <FileDropzone
@@ -155,7 +148,6 @@ export default function UploadPanel() {
             </p>
           )}
 
-          {/* RESULT */}
           {status === "complete" && (
             <div className="rounded-xl bg-blue-900/40 p-4 text-center">
               <p className="text-sm text-white/70">
@@ -198,7 +190,6 @@ export default function UploadPanel() {
             hasRecording={!!recordedBlob}
           />
 
-          {/* RESULT – giống Upload */}
           {status === "complete" && (
             <div className="rounded-xl bg-blue-900/40 p-4 text-center">
               <p className="text-sm text-white/70">
@@ -210,7 +201,6 @@ export default function UploadPanel() {
             </div>
           )}
 
-          {/* ACTION BUTTON */}
           <Button
             onClick={() => {
               if (status === "complete") handleCancel()

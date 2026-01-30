@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom"
 import Layout from "./layout"
-
 import HomePage from "@/pages/home/HomePage"
 import GenreDetectPage from "@/pages/genre-detect/GenreDetectPage"
 import OnlineEQPage from "@/pages/online-eq/OnlineEQPage"
