@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Upload, Mic, Download } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import PlayButton from "@/components/common/PlayButton"
-import { VolumeX, Volume2 } from "lucide-react"
+import { VolumeX, Volume2, Trash2 } from "lucide-react"
 
 const BAR_COUNT = 240
 
@@ -146,25 +146,30 @@ export default function TrackList() {
       setPlayingTrackId(track.id)
     } else {
       audio.pause()
-      setPlayingTrackId(null)
+      // ❌ KHÔNG reset playingTrackId
+      // setPlayingTrackId(null)
     }
   }
 
   function playAll() {
     tracks.forEach(track => {
       const audio = getAudio(track)
-      audio.currentTime = 0
+
+      // ❌ bỏ dòng này
+      // audio.currentTime = 0
+
       audio.play()
     })
 
     setIsPlayAll(true)
-    setPlayingTrackId(null) // không highlight riêng track nào
+    setPlayingTrackId(null)
   }
 
   function stopAll() {
     audioMapRef.current.forEach(audio => {
       audio.pause()
-      audio.currentTime = 0
+      // ❌ bỏ reset
+      // audio.currentTime = 0
     })
 
     setIsPlayAll(false)
@@ -181,6 +186,36 @@ export default function TrackList() {
 
     audio.play()
     setPlayingTrackId(track.id)
+  }
+
+  function deleteTrack(track: Track) {
+    // 1. Stop & remove audio
+    const audio = audioMapRef.current.get(track.id)
+    if (audio) {
+      audio.pause()
+      audio.src = ""
+      audioMapRef.current.delete(track.id)
+    }
+
+    // 2. Remove from tracks
+    setTracks(ts => ts.filter(t => t.id !== track.id))
+
+    // 3. Remove progress
+    setTrackProgress(p => {
+      const next = { ...p }
+      delete next[track.id]
+      return next
+    })
+
+    // 4. Reset states nếu cần
+    if (playingTrackId === track.id) {
+      setPlayingTrackId(null)
+    }
+
+    if (selectedTrackId === track.id) {
+      setSelectedTrackId(null)
+      setShowMixing(false)
+    }
   }
 
   /* ========== EXPORT ========== */
@@ -267,92 +302,112 @@ export default function TrackList() {
       </section>
 
       {/* TRACK LIST */}
-      {tracks.map(track => (
-        <div
-          key={track.id}
-          onClick={() => setSelectedTrackId(track.id)}
-          className={`cursor-pointer rounded-xl border p-4 ${selectedTrackId === track.id
-            ? "border-lime-400 bg-lime-400/10"
-            : "border-white/10 bg-white/5"
-            }`}
-        >
-          <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {/* PLAY + MUTE */}
-              <div
-                className="flex items-center gap-1"
-                onClick={e => e.stopPropagation()}
-              >
-                <PlayButton
-                  isPlaying={playingTrackId === track.id}
-                  onClick={() => togglePlay(track)}
-                />
+      {tracks.map(track => {
+        const progress = trackProgress[track.id]
 
-                {/* TRACK NAME */}
-                <p className="text-sm font-semibold text-white truncate">
-                  {track.name}
-                </p>
+        return (
+          <div
+            key={track.id}
+            onClick={() => setSelectedTrackId(track.id)}
+            className={`cursor-pointer rounded-xl border p-4 ${selectedTrackId === track.id
+                ? "border-lime-400 bg-lime-400/10"
+                : "border-white/10 bg-white/5"
+              }`}
+          >
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* PLAY + MUTE */}
+                <div
+                  className="flex items-center gap-1"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <PlayButton
+                    isPlaying={playingTrackId === track.id}
+                    onClick={() => togglePlay(track)}
+                  />
 
+                  <p className="text-sm font-semibold text-white truncate">
+                    {track.name}
+                  </p>
+
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => toggleMute(track)}
+                    className={`
+                h-9 w-9
+                ${track.muted ? "text-red-400" : "text-white/60"}
+                hover:bg-transparent
+                hover:text-red-400
+                focus:bg-transparent
+                active:bg-transparent
+              `}
+                  >
+                    {track.muted ? (
+                      <VolumeX className="h-4 w-4" />
+                    ) : (
+                      <Volume2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={() => toggleMute(track)}
-                  className={`
-    h-9 w-9
-    ${track.muted ? "text-red-400" : "text-white/60"}
-
-    hover:bg-transparent
-    hover:text-red-400
-
-    focus:bg-transparent
-    active:bg-transparent
-  `}
+                  onClick={e => {
+                    e.stopPropagation()
+                    deleteTrack(track)
+                  }}
+                  className="
+              h-9 w-9
+              text-white/40
+              hover:text-red-400
+              hover:bg-transparent
+              active:bg-transparent
+            "
                 >
-                  {track.muted ? (
-                    <VolumeX className="h-4 w-4" />
-                  ) : (
-                    <Volume2 className="h-4 w-4" />
-                  )}
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+
+                <Button
+                  size="sm"
+                  className="bg-lime-400 text-blue-950 hover:bg-lime-300 shadow-[0_4px_20px_rgba(182,255,82,0.35)]"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setSelectedTrackId(track.id)
+                    setShowMixing(true)
+                  }}
+                >
+                  Mixing
+                </Button>
+
+                <Button
+                  size="sm"
+                  className="bg-lime-400 text-blue-950 hover:bg-lime-300 shadow-[0_4px_20px_rgba(182,255,82,0.35)]"
+                  onClick={e => {
+                    e.stopPropagation()
+                    exportTrack(track)
+                  }}
+                >
+                  <Download className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                className="bg-lime-400 text-blue-950 hover:bg-lime-300 shadow-[0_4px_20px_rgba(182,255,82,0.35)]"
-                onClick={e => {
-                  e.stopPropagation()
-                  setSelectedTrackId(track.id)
-                  setShowMixing(true)
-                }}
-              >
-                Mixing
-              </Button>
-
-              <Button
-                size="sm"
-                className="bg-lime-400 text-blue-950 hover:bg-lime-300 shadow-[0_4px_20px_rgba(182,255,82,0.35)]"
-                onClick={e => {
-                  e.stopPropagation()
-                  exportTrack(track)
-                }}
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-            </div>
+            <WaveformBars
+              bars={track.waveform}
+              audioMapRef={audioMapRef}
+              trackId={track.id}
+              isActive={isPlayAll || !!progress}
+              currentTime={progress?.currentTime ?? 0}
+              duration={progress?.duration ?? 0}
+              isPlayAll={isPlayAll}
+            />
           </div>
-
-          <WaveformBars
-            bars={track.waveform}
-            audioMapRef={audioMapRef}
-            trackId={track.id}
-            isActive={playingTrackId === track.id}
-            currentTime={trackProgress[track.id]?.currentTime ?? 0}
-            duration={trackProgress[track.id]?.duration ?? 0}
-          />
-        </div>
-      ))}
+        )
+      })}
 
       {/* MIXER */}
       {showMixing && selectedTrack && (
@@ -480,6 +535,7 @@ function WaveformBars({
   isActive,
   currentTime,
   duration,
+  isPlayAll,
   activeColor = "bg-lime-400",
   idleColor = "bg-white/60",
 }: {
@@ -489,6 +545,7 @@ function WaveformBars({
   isActive: boolean
   currentTime: number
   duration: number
+  isPlayAll: boolean
   activeColor?: string
   idleColor?: string
 }) {
@@ -497,14 +554,25 @@ function WaveformBars({
   const handleSeek = (e: React.MouseEvent) => {
     if (!containerRef.current || !duration) return
 
-    const audio = audioMapRef.current?.get(trackId)
-    if (!audio) return
-
     const rect = containerRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const percent = Math.min(Math.max(x / rect.width, 0), 1)
 
-    audio.currentTime = duration * percent
+    // 👉 PLAY ALL → tua tất cả track
+    if (isPlayAll) {
+      audioMapRef.current?.forEach(audio => {
+        if (!isNaN(audio.duration)) {
+          audio.currentTime = audio.duration * percent
+        }
+      })
+      return
+    }
+
+    // 👉 PLAY 1 TRACK → tua riêng track đó
+    const audio = audioMapRef.current?.get(trackId)
+    if (!audio) return
+
+    audio.currentTime = audio.duration * percent
   }
 
   return (
