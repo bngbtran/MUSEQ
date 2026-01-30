@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Upload, Mic, Download } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import PlayButton from "@/components/common/PlayButton"
+import { VolumeX, Volume2 } from "lucide-react"
 
 const BAR_COUNT = 240
 
@@ -12,6 +13,7 @@ export type Track = {
   audioUrl: string
   waveform: number[]
   eq: number[]
+  muted: boolean
 }
 
 export default function TrackList() {
@@ -45,6 +47,7 @@ export default function TrackList() {
       audioUrl: url,
       waveform: generateWaveform(),
       eq: Array(8).fill(0),
+      muted: false
     }
 
     setTracks(prev => [...prev, newTrack])
@@ -87,6 +90,8 @@ export default function TrackList() {
       const audio = new Audio(track.audioUrl)
       audio.preload = "metadata"
 
+      audio.muted = track.muted
+
       audio.onloadedmetadata = () => {
         setTrackProgress(p => ({
           ...p,
@@ -117,6 +122,21 @@ export default function TrackList() {
     return map.get(track.id)!
   }
 
+  function toggleMute(track: Track) {
+    setTracks(ts =>
+      ts.map(t =>
+        t.id === track.id
+          ? { ...t, muted: !t.muted }
+          : t
+      )
+    )
+
+    const audio = audioMapRef.current.get(track.id)
+    if (audio) {
+      audio.muted = !track.muted
+    }
+  }
+
   /* ========== AUDIO ========== */
   function togglePlay(track: Track) {
     const audio = getAudio(track)
@@ -128,6 +148,27 @@ export default function TrackList() {
       audio.pause()
       setPlayingTrackId(null)
     }
+  }
+
+  function playAll() {
+    tracks.forEach(track => {
+      const audio = getAudio(track)
+      audio.currentTime = 0
+      audio.play()
+    })
+
+    setIsPlayAll(true)
+    setPlayingTrackId(null) // không highlight riêng track nào
+  }
+
+  function stopAll() {
+    audioMapRef.current.forEach(audio => {
+      audio.pause()
+      audio.currentTime = 0
+    })
+
+    setIsPlayAll(false)
+    setPlayingTrackId(null)
   }
 
   function playTrackDirect(track: Track) {
@@ -183,6 +224,34 @@ export default function TrackList() {
             {isRecording ? "Stop" : "Record"}
           </Button>
 
+          <Button
+            onClick={() => {
+              if (isPlayAll) {
+                stopAll()
+              } else {
+                playAll()
+              }
+            }}
+            className="
+    flex items-center gap-2 font-bold
+    bg-lime-400 text-blue-950 hover:bg-lime-300
+    shadow-[0_4px_20px_rgba(182,255,82,0.35)]
+  "
+          >
+            {/* ICON – ép màu */}
+            <span className="[&_svg]:text-blue-900 pointer-events-none">
+              <PlayButton
+                isPlaying={isPlayAll}
+                onClick={() => { }}
+              />
+            </span>
+
+            {/* TEXT */}
+            <span>
+              {isPlayAll ? "STOP ALL" : "PLAY ALL"}
+            </span>
+          </Button>
+
           <input
             ref={fileInputRef}
             type="file"
@@ -208,17 +277,44 @@ export default function TrackList() {
             }`}
         >
           <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3">
+              {/* PLAY + MUTE */}
+              <div
+                className="flex items-center gap-1"
+                onClick={e => e.stopPropagation()}
+              >
                 <PlayButton
                   isPlaying={playingTrackId === track.id}
                   onClick={() => togglePlay(track)}
                 />
-              </div>
 
-              <p className="text-sm font-semibold text-white">
-                {track.name}
-              </p>
+                {/* TRACK NAME */}
+                <p className="text-sm font-semibold text-white truncate">
+                  {track.name}
+                </p>
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => toggleMute(track)}
+                  className={`
+    h-9 w-9
+    ${track.muted ? "text-red-400" : "text-white/60"}
+
+    hover:bg-transparent
+    hover:text-red-400
+
+    focus:bg-transparent
+    active:bg-transparent
+  `}
+                >
+                  {track.muted ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
 
             <div className="flex gap-2">
