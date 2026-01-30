@@ -94,7 +94,7 @@ function MixerEditor({
 }) {
 
   const [eqValues, setEqValues] = useState<number[]>(
-    track.mix.eq ?? Array(8).fill(0)
+    track.mix?.eq ?? Array(8).fill(0)
   )
 
   const original = useBaseWaveform()

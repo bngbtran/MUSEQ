@@ -14,6 +14,12 @@ export type Track = {
   waveform: number[]
   eq: number[]
   muted: boolean
+  // Thêm 2 dòng này để khớp với các file ChannelStrip và MixerPanel
+  solo?: boolean
+  mix?: {
+    eq?: number[]
+    volume?: number
+  }
 }
 
 export default function TrackList() {
@@ -47,7 +53,9 @@ export default function TrackList() {
       audioUrl: url,
       waveform: generateWaveform(),
       eq: Array(8).fill(0),
-      muted: false
+      muted: false,
+      solo: false, // Thêm giá trị mặc định
+      mix: { eq: Array(8).fill(0), volume: 1 } // Thêm giá trị mặc định
     }
 
     setTracks(prev => [...prev, newTrack])
@@ -310,8 +318,8 @@ export default function TrackList() {
             key={track.id}
             onClick={() => setSelectedTrackId(track.id)}
             className={`cursor-pointer rounded-xl border p-4 ${selectedTrackId === track.id
-                ? "border-lime-400 bg-lime-400/10"
-                : "border-white/10 bg-white/5"
+              ? "border-lime-400 bg-lime-400/10"
+              : "border-white/10 bg-white/5"
               }`}
           >
             <div className="mb-2 flex items-center justify-between">
