@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { to: "/", label: "Home", end: true },
   { to: "/genre-detect", label: "Genre Detect" },
-  { to: "/online-eq", label: "Online EQ" },
+  { to: "/realtime", label: "Realtime EQ" },
 ]
 
 export default function Navbar() {
